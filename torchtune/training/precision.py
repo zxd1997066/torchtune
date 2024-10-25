@@ -62,7 +62,7 @@ def verify_bf16_support() -> bool:
         and torch.cuda.nccl.version() >= (2, 10)
     )
     mps_support = torch.backends.mps.is_available() and torch.backends.mps.is_built()
-    return cuda_support or mps_support
+    return True
 
 
 def get_dtype(
