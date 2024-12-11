@@ -732,8 +732,9 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
                     # Log per-step metrics
                     if self.global_step % self._log_every_n_steps == 0:
                         time_per_step = time.perf_counter() - t0
-                        total_time = total_time + time_per_step
-                        total_tokens += num_tokens.cpu().numpy()
+                        if self.global_step > 2:
+                            total_time = total_time + time_per_step
+                            total_tokens += num_tokens.cpu().numpy()
                         print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / time_per_step ,2))
                         log_dict = {
                             "loss": loss_to_log,
