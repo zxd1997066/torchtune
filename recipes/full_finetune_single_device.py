@@ -557,7 +557,10 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
     def train(self) -> None:
         self.optimizer.zero_grad()
         t0 = time.perf_counter()
-        running_loss, num_tokens = 0.0, 0
+        running_loss = 0
+        num_tokens = 0
+        total_tokens = 0
+        total_time = 0
         self._profiler.start()
 
         for curr_epoch in range(self.epochs_run, self.total_epochs):
@@ -586,6 +589,7 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
 
                 running_loss += current_loss.detach()
                 current_loss.backward()
+                if self.global_step >= 5: break
 
                 # Take a normal optimizer step
                 if (idx + 1) % self._gradient_accumulation_steps == 0:
@@ -616,6 +620,9 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
 
                     if self.global_step % self._log_every_n_steps == 0:
                         time_per_step = time.perf_counter() - t0
+                        total_time = total_time + time_per_step
+                        total_tokens += num_tokens.cpu().numpy()
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / time_per_step ,2))
                         log_dict = {
                             "loss": loss_value,
                             "lr": get_lr(self.optimizer),
@@ -649,6 +656,7 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
                 ) == self.max_steps_per_epoch:
                     break
 
+            print("avg tokens_per_second_on_single_device: ", round(total_tokens / total_time, 2))
             self.epochs_run += 1
             self.save_checkpoint(epoch=curr_epoch)
 
