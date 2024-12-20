@@ -48,8 +48,8 @@ def cleanup_before_training() -> None:
     Call gc collect, empty device cache, and reset peak memory stats.
     """
     gc.collect()
-    get_torch_device_namespace().empty_cache()
-    get_torch_device_namespace().reset_peak_memory_stats()
+    # get_torch_device_namespace().empty_cache()
+    # get_torch_device_namespace().reset_peak_memory_stats()
 
 
 class OptimizerInBackwardWrapper:
@@ -260,24 +260,24 @@ def get_memory_stats(device: torch.device, reset_stats: bool = True) -> dict:
     Raises:
         ValueError: If the passed-in device is not CUDA.
     """
-    if device.type == "cpu":
-        raise ValueError("Logging memory stats is not supported on CPU devices")
+    #if device.type == "cpu":
+    #    raise ValueError("Logging memory stats is not supported on CPU devices")
 
     torch_device = get_torch_device_namespace()
-    peak_memory_active = torch_device.memory_stats().get("active_bytes.all.peak", 0) / (
-        1024**3
-    )
-    peak_mem_alloc = torch_device.max_memory_allocated(device) / (1024**3)
-    peak_mem_reserved = torch_device.max_memory_reserved(device) / (1024**3)
-    if reset_stats:
-        torch_device.reset_peak_memory_stats(device)
+    # peak_memory_active = torch_device.memory_stats().get("active_bytes.all.peak", 0) / (
+    #     1024**3
+    # )
+    # peak_mem_alloc = torch_device.max_memory_allocated(device) / (1024**3)
+    # peak_mem_reserved = torch_device.max_memory_reserved(device) / (1024**3)
+    # if reset_stats:
+    #     torch_device.reset_peak_memory_stats(device)
 
-    memory_stats = {
-        "peak_memory_active": peak_memory_active,
-        "peak_memory_alloc": peak_mem_alloc,
-        "peak_memory_reserved": peak_mem_reserved,
-    }
-    return memory_stats
+    # memory_stats = {
+    #     "peak_memory_active": peak_memory_active,
+    #     "peak_memory_alloc": peak_mem_alloc,
+    #     "peak_memory_reserved": peak_mem_reserved,
+    # }
+    # return memory_stats
 
 
 DEFAULT_LOG_MESSAGE = "Memory stats after model init:"
@@ -298,9 +298,9 @@ def log_memory_stats(
             Defaults to "Memory stats after model init:"
     """
     device_support = get_device_support()
-    _log.info(
-        f"{message}"
-        f"\n\t{device_support.device_name} peak memory allocation: {stats['peak_memory_alloc']:.2f} GiB"
-        f"\n\t{device_support.device_name} peak memory reserved: {stats['peak_memory_reserved']:.2f} GiB"
-        f"\n\t{device_support.device_name} peak memory active: {stats['peak_memory_active']:.2f} GiB"
-    )
+    # _log.info(
+    #     f"{message}"
+    #     f"\n\t{device_support.device_name} peak memory allocation: {stats['peak_memory_alloc']:.2f} GiB"
+    #     f"\n\t{device_support.device_name} peak memory reserved: {stats['peak_memory_reserved']:.2f} GiB"
+    #     f"\n\t{device_support.device_name} peak memory active: {stats['peak_memory_active']:.2f} GiB"
+    # )

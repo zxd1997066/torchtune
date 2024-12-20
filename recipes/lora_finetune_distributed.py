@@ -6,6 +6,7 @@
 
 import sys
 import time
+import os
 
 from functools import partial
 from typing import Any, Dict, List, Optional, Tuple, Union
@@ -136,6 +137,7 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
             )
 
         _, rank = utils.get_world_size_and_rank()
+        # rank=int(os.environ['PMI_RANK'])
 
         self._is_rank_zero = rank == 0
 
@@ -585,6 +587,8 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
         iterable datasets and streaming datasets are not supported.
         """
         world_size, rank = utils.get_world_size_and_rank()
+        # world_size = int(os.environ['PMI_SIZE'])
+        # rank = int(os.environ['PMI_RANK'])
 
         if isinstance(cfg_dataset, ListConfig):
             datasets = [
@@ -747,6 +751,8 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
         training.cleanup_before_training()
 
         world_size, rank = utils.get_world_size_and_rank()
+        # world_size = int(os.environ['PMI_SIZE'])
+        # rank = int(os.environ['PMI_RANK'])
 
         # zero out the gradients before starting training
         self._optimizer.zero_grad()
@@ -915,7 +921,7 @@ def recipe_main(cfg: DictConfig) -> None:
             "Distributed finetune recipe should be run via a distributed launcher."
             "If using tune CLI, please specify --nnodes 1 and --nproc_per_node [num_gpus]"
         )
-    init_process_group("cuda:nccl,cpu:gloo")
+    init_process_group(backend='gloo', world_size=2)
     if cfg.get("fsdp_cpu_offload", False):
         # Utilize all available CPU cores for intra-op parallelism. This provides ~2x
         # speed up when benchmarking fused AdamW on CPU
