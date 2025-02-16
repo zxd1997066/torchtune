@@ -936,11 +936,15 @@ class PPOFullFinetuneRecipeSingleDevice(FTRecipeInterface):
         training_completed = False
         self._profiler.start()
         pbar = tqdm(total=self._total_steps, initial=self._steps_run)
+        total_tokens = 0
+        total_traj = 0
+        total_ppo = 0
         for curr_epoch in range(self._epochs_run, self._total_epochs):
             # Update the sampler to ensure data is correctly shuffled across epochs
             # in case shuffle is True
             self._dataloader.sampler.set_epoch(curr_epoch)
             for idx, batch in enumerate(self._dataloader):
+                if self.global_step >= 5: break
                 # Start tracking CUDA memory for active steps for just the first epoch
                 if (
                     curr_epoch == 0
@@ -1025,7 +1029,6 @@ class PPOFullFinetuneRecipeSingleDevice(FTRecipeInterface):
                         self.global_step += 1
 
                 ppo_time = time.perf_counter() - t0_ppo
-
                 current_lr = get_lr(
                     (
                         self._optimizer
@@ -1034,6 +1037,13 @@ class PPOFullFinetuneRecipeSingleDevice(FTRecipeInterface):
                     ),
                 )
 
+                if self.global_step > 2:
+                    total_traj = total_traj + traj_time
+                    total_ppo = total_ppo + ppo_time
+                    total_tokens += num_tokens.cpu().numpy()
+                print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "traj_time: ", traj_time, "ppo_time: ", ppo_time)
+                print("traj_tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / traj_time ,2))
+                print("ppo_tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / ppo_time ,2))
                 # step 5. profit
                 self._steps_run += 1
                 if self._steps_run % self._log_every_n_steps == 0:
@@ -1071,6 +1081,8 @@ class PPOFullFinetuneRecipeSingleDevice(FTRecipeInterface):
                     break
 
             # save checkpoint at current epoch
+            print("avg traj tokens_per_second_on_single_device: ", round(total_tokens / total_traj, 2))
+            print("avg ppo tokens_per_second_on_single_device: ", round(total_tokens / total_ppo, 2))
             self._epochs_run += 1
 
             self.save_checkpoint(
