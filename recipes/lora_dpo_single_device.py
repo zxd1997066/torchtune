@@ -484,6 +484,8 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
         t0 = time.perf_counter()
         running_loss = 0
         num_tokens = 0
+        total_tokens = 0
+        total_time = 0
 
         # self.epochs_run should be non-zero when we're resuming from a checkpoint
         for curr_epoch in range(self.epochs_run, self.total_epochs):
@@ -535,12 +537,14 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
 
                 # Step with optimizer
                 if (idx + 1) % self._gradient_accumulation_steps == 0:
+                    if self.global_step >= 5: break
                     self._optimizer.step()
                     self._optimizer.zero_grad(set_to_none=True)
 
                     if self._lr_scheduler is not None:
                         self._lr_scheduler.step()
                     # Update the number of steps when the weights are updated
+                    
                     self.global_step += 1
 
                     loss_to_log = running_loss.detach().item()
@@ -552,6 +556,10 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
                     # Log per-step metrics
                     if self.global_step % self._log_every_n_steps == 0:
                         time_per_step = time.perf_counter() - t0
+                        if self.global_step > 2:
+                            total_time = total_time + time_per_step
+                            total_tokens += num_tokens.cpu().numpy()
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / time_per_step ,2))
                         log_dict = {
                             "loss": loss_to_log,
                             "lr": self._optimizer.param_groups[0]["lr"],
@@ -584,7 +592,7 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
                     running_loss = 0
                     num_tokens = 0
                     t0 = time.perf_counter()
-
+            print("avg tokens_per_second_on_single_device: ", round(total_tokens / total_time, 2))
             self.epochs_run += 1
             self.save_checkpoint(epoch=curr_epoch)
 
