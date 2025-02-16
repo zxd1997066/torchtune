@@ -607,6 +607,8 @@ class KDRecipeSingleDevice(FTRecipeInterface):
         running_class_loss = 0
         running_kd_loss = 0
         num_tokens = 0
+        total_tokens = 0
+        total_time = 0
 
         self._profiler.start()
         # self.epochs_run should be non-zero when we're resuming from a checkpoint
@@ -664,6 +666,8 @@ class KDRecipeSingleDevice(FTRecipeInterface):
                         f"{curr_epoch + 1}|{self.global_step}|Loss: {loss_to_log}"
                     )
 
+                    if self.global_step >= 5: break
+
                     # Log per-step metrics
                     if self.global_step % self._log_every_n_steps == 0:
                         time_per_step = time.perf_counter() - t0
@@ -713,11 +717,12 @@ class KDRecipeSingleDevice(FTRecipeInterface):
                     (idx + 1) // self._gradient_accumulation_steps
                 ) == self.max_steps_per_epoch:
                     break
-
+            print("avg tokens_per_second_on_single_device: ", round(total_tokens / total_time, 2))
             self.epochs_run += 1
             self.save_checkpoint(epoch=curr_epoch)
 
         self._profiler.stop()
+
 
     def cleanup(self) -> None:
         self._metric_logger.close()
