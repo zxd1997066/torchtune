@@ -558,8 +558,8 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
                         time_per_step = time.perf_counter() - t0
                         if self.global_step > 2:
                             total_time = total_time + time_per_step
-                            total_tokens += num_tokens.cpu().numpy()
-                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / time_per_step ,2))
+                            total_tokens += num_tokens
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens, "time: ", time_per_step, "tokens_per_second_on_single_device: ", round(num_tokens / time_per_step ,2))
                         log_dict = {
                             "loss": loss_to_log,
                             "lr": self._optimizer.param_groups[0]["lr"],
