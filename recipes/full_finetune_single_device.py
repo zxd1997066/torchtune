@@ -627,7 +627,6 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
                 current_loss = self._loss_step(batch) * current_num_tokens
                 running_loss += current_loss
                 current_loss.backward()
-                if self.global_step >= 5: break
 
                 if (idx + 1) % self._gradient_accumulation_steps == 0:
                     # If we're not using optimizer in backwards, we step the optimizer like normal
