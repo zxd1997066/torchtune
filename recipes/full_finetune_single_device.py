@@ -589,7 +589,6 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
 
                 running_loss += current_loss.detach()
                 current_loss.backward()
-                if self.global_step >= 5: break
 
                 # Take a normal optimizer step
                 if (idx + 1) % self._gradient_accumulation_steps == 0:
