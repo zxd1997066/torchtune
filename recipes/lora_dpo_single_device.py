@@ -537,7 +537,6 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
 
                 # Step with optimizer
                 if (idx + 1) % self._gradient_accumulation_steps == 0:
-                    if self.global_step >= 5: break
                     self._optimizer.step()
                     self._optimizer.zero_grad(set_to_none=True)
 
