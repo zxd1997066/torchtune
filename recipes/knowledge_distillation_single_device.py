@@ -806,7 +806,6 @@ class KDRecipeSingleDevice(FTRecipeInterface):
 
         self._profiler.stop()
 
-
     def cleanup(self) -> None:
         self._metric_logger.close()
 
