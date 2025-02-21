@@ -593,7 +593,7 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
                     t0 = time.perf_counter()
             print("avg tokens_per_second_on_single_device: ", round(total_tokens / total_time, 2))
             self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
+            # self.save_checkpoint(epoch=curr_epoch)
 
     def cleanup(self) -> None:
         self._metric_logger.close()
