@@ -1085,9 +1085,9 @@ class PPOFullFinetuneRecipeSingleDevice(FTRecipeInterface):
             print("avg ppo tokens_per_second_on_single_device: ", round(total_tokens / total_ppo, 2))
             self._epochs_run += 1
 
-            self.save_checkpoint(
-                curr_epoch, is_intermediate_checkpoint=not training_completed
-            )
+            # self.save_checkpoint(
+            #     curr_epoch, is_intermediate_checkpoint=not training_completed
+            # )
             if training_completed:
                 self._profiler.stop()
                 return
