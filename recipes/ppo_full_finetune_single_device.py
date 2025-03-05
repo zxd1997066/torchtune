@@ -1040,10 +1040,10 @@ class PPOFullFinetuneRecipeSingleDevice(FTRecipeInterface):
                 if self.global_step > 2:
                     total_traj = total_traj + traj_time
                     total_ppo = total_ppo + ppo_time
-                    total_tokens += num_tokens.cpu().numpy()
-                print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "traj_time: ", traj_time, "ppo_time: ", ppo_time)
-                print("traj_tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / traj_time ,2))
-                print("ppo_tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / ppo_time ,2))
+                    total_tokens += num_tokens
+                print("iteration: ", self.global_step, "tokens: ", num_tokens, "traj_time: ", traj_time, "ppo_time: ", ppo_time)
+                print("traj_tokens_per_second_on_single_device: ", round(num_tokens / traj_time ,2))
+                print("ppo_tokens_per_second_on_single_device: ", round(num_tokens / ppo_time ,2))
                 # step 5. profit
                 self._steps_run += 1
                 if self._steps_run % self._log_every_n_steps == 0:
