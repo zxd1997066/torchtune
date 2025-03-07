@@ -666,8 +666,6 @@ class KDRecipeSingleDevice(FTRecipeInterface):
                         f"{curr_epoch + 1}|{self.global_step}|Loss: {loss_to_log}"
                     )
 
-                    if self.global_step >= 5: break
-
                     # Log per-step metrics
                     if self.global_step % self._log_every_n_steps == 0:
                         time_per_step = time.perf_counter() - t0
