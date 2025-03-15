@@ -761,7 +761,9 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
         t0 = time.perf_counter()
         running_loss = 0
         num_tokens = 0
-
+        total_tokens = 0
+        total_time = 0
+        
         self._profiler.start()
         # self.epochs_run should be non-zero when we're resuming from a checkpoint
         for curr_epoch in range(self.epochs_run, self.total_epochs):
@@ -847,6 +849,10 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                         and self._is_rank_zero
                     ):
                         time_per_step = time.perf_counter() - t0
+                        if self.global_step > 2:
+                            total_time = total_time + time_per_step
+                            total_tokens += num_tokens.cpu().numpy()
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / time_per_step ,2))                            
                         log_dict = {
                             "loss": loss_to_log,
                             "lr": self._optimizer.param_groups[0]["lr"],
@@ -892,9 +898,9 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                     (idx + 1) // self._gradient_accumulation_steps
                 ) == self.max_steps_per_epoch:
                     break
-
+            print("avg tokens_per_second_on_single_device: ", round(total_tokens / total_time, 2))
             self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
+            # self.save_checkpoint(epoch=curr_epoch)
 
         self._profiler.stop()
 
