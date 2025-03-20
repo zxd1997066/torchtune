@@ -745,6 +745,10 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                         and self._is_rank_zero
                     ):
                         time_per_step = time.perf_counter() - t0
+                        if self.global_step > 2:
+                            total_time = total_time + time_per_step
+                            total_tokens += num_tokens.cpu().numpy()
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second: ", round(num_tokens.cpu().numpy() / time_per_step ,2))                            
                         log_dict = {
                             "loss": loss_to_log,
                             "lr": self._optimizer.param_groups[0]["lr"],
@@ -798,10 +802,11 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                     (idx + 1) // self._gradient_accumulation_steps
                 ) == self.max_steps_per_epoch:
                     break
-
             self.epochs_run += 1
             self.save_checkpoint(epoch=curr_epoch)
-
+            self.epochs_run += 1
+            # self.save_checkpoint(epoch=curr_epoch)
+        print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
         self._profiler.stop()
 
     def _loss_step(self, batch: dict[str, torch.Tensor]) -> torch.Tensor:
