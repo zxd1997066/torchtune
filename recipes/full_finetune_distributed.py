@@ -148,7 +148,7 @@ class FullFinetuneRecipeDistributed(FTRecipeInterface):
             offload_ops_to_cpu=self.fsdp_cpu_offload
             or self._enable_async_checkpointing,
         )
-        init_process_group(self.distributed_backend)
+        init_process_group("xpu:xccl,cpu:gloo")
 
         # Initialize distributed variables
         self.world_size, self.rank = utils.get_world_size_and_rank()
@@ -914,6 +914,8 @@ class FullFinetuneRecipeDistributed(FTRecipeInterface):
         t0 = time.perf_counter()
         running_loss = 0
         num_tokens = 0
+        total_tokens = 0
+        total_time = 0
 
         self._profiler.start()
         # self.epochs_run should be non-zero when we're resuming from a checkpoint
@@ -1010,6 +1012,10 @@ class FullFinetuneRecipeDistributed(FTRecipeInterface):
                         and self._is_rank_zero
                     ):
                         time_per_step = time.perf_counter() - t0
+                        if self.global_step > 2:
+                            total_time = total_time + time_per_step
+                            total_tokens += num_tokens.cpu().numpy()
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second: ", round(num_tokens.cpu().numpy() / time_per_step ,2))                            
                         log_dict = {
                             "loss": loss_to_log,
                             "lr": get_lr(
@@ -1088,7 +1094,7 @@ class FullFinetuneRecipeDistributed(FTRecipeInterface):
                 ),
                 epoch=curr_epoch,
             )
-
+        print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
         self._profiler.stop()
 
     def cleanup(self) -> None:
