@@ -559,6 +559,7 @@ class FullFinetuneRecipeDistributed(FTRecipeInterface):
                 device_mesh["tp"],
                 parallelize_plan=self.tensor_parallel_plan,
             )
+            print("using TP")
 
         # We currently have two versions of activation checkpointing in this recipe
         # for testing and BC purposes. ``enable_activation_checkpointing`` controls
