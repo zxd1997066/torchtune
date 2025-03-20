@@ -148,7 +148,7 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
             offload_ops_to_cpu=self.fsdp_cpu_offload
             or self._enable_async_checkpointing,
         )
-        init_process_group(self.distributed_backend)
+        init_process_group("xpu:xccl,cpu:gloo")
 
         self.world_size, self.rank = utils.get_world_size_and_rank()
 
