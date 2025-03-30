@@ -680,7 +680,8 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
         t0 = time.perf_counter()
         running_loss = 0
         num_tokens = 0
-
+        total_tokens = 0
+        total_time = 0
         self._profiler.start()
         # self.epochs_run should be non-zero when we're resuming from a checkpoint
         for curr_epoch in range(self.epochs_run, self.total_epochs):
