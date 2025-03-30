@@ -804,8 +804,6 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                 ) == self.max_steps_per_epoch:
                     break
             self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
-            self.epochs_run += 1
             # self.save_checkpoint(epoch=curr_epoch)
         print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
         self._profiler.stop()
