@@ -733,12 +733,12 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                 "peft_type": "LORA",
             }
             checkpoint_dict.update({training.ADAPTER_CONFIG: adapter_config})
-            self._checkpointer.save_checkpoint(
-                checkpoint_dict,
-                epoch=epoch,
-                intermediate_checkpoint=intermediate_checkpoint,
-                adapter_only=self._save_adapter_weights_only,
-            )
+            # self._checkpointer.save_checkpoint(
+            #     checkpoint_dict,
+            #     epoch=epoch,
+            #     intermediate_checkpoint=intermediate_checkpoint,
+            #     adapter_only=self._save_adapter_weights_only,
+            # )
             log.info(f"Saving checkpoint took {time.perf_counter() - start:.2f} secs")
 
         torch.distributed.barrier()
@@ -893,8 +893,6 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                     (idx + 1) // self._gradient_accumulation_steps
                 ) == self.max_steps_per_epoch:
                     break
-            self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
             self.epochs_run += 1
             # self.save_checkpoint(epoch=curr_epoch)
         print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
