@@ -140,7 +140,7 @@ class LoRADPORecipeDistributed(FTRecipeInterface):
         self.distributed_backend = training.get_distributed_backend(
             cfg.device, offload_ops_to_cpu=True
         )
-        init_process_group(self.distributed_backend)
+        init_process_group("xpu:xccl,cpu:gloo")
 
         self.world_size, self.rank = utils.get_world_size_and_rank()
 
@@ -633,7 +633,8 @@ class LoRADPORecipeDistributed(FTRecipeInterface):
             "logits/rejected": 0,
         }
         num_tokens = 0
-
+        total_tokens = 0
+        total_time = 0
         # self.epochs_run should be non-zero when we're resuming from a checkpoint
         for curr_epoch in range(self.epochs_run, self.total_epochs):
             # Update the sampler to ensure data is correctly shuffled across epochs
@@ -743,6 +744,10 @@ class LoRADPORecipeDistributed(FTRecipeInterface):
                         and self._is_rank_zero
                     ):
                         time_per_step = time.perf_counter() - t0
+                        if self.global_step > 2:
+                              total_time = total_time + time_per_step
+                              total_tokens += num_tokens.cpu().numpy()
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second: ", round(num_tokens.cpu().numpy() / time_per_step ,2))
                         log_dict = {
                             "loss": loss_to_log,
                             "lr": self._optimizer.param_groups[0]["lr"],
@@ -783,9 +788,10 @@ class LoRADPORecipeDistributed(FTRecipeInterface):
                     num_tokens = 0
 
                     t0 = time.perf_counter()
+                    print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
 
             self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
+            # self.save_checkpoint(epoch=curr_epoch)
 
     def cleanup(self) -> None:
         if self._is_rank_zero:

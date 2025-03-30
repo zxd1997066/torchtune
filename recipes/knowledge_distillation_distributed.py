@@ -124,7 +124,7 @@ class KDRecipeDistributed(FTRecipeInterface):
             offload_ops_to_cpu=self.fsdp_cpu_offload
             or self._enable_async_checkpointing,
         )
-        init_process_group(self.distributed_backend)
+        init_process_group("xpu:xccl,cpu:gloo")
 
         self.world_size, self.rank = utils.get_world_size_and_rank()
 
@@ -738,7 +738,8 @@ class KDRecipeDistributed(FTRecipeInterface):
         running_class_loss = 0
         running_kd_loss = 0
         num_tokens = 0
-
+        total_tokens = 0
+        total_time = 0
         self._profiler.start()
         # self.epochs_run should be non-zero when we're resuming from a checkpoint
         for curr_epoch in range(self.epochs_run, self.total_epochs):
@@ -816,6 +817,10 @@ class KDRecipeDistributed(FTRecipeInterface):
                         and self._is_rank_zero
                     ):
                         time_per_step = time.perf_counter() - t0
+                        if self.global_step > 2:
+                              total_time = total_time + time_per_step
+                              total_tokens += num_tokens.cpu().numpy()
+                        print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second: ", round(num_tokens.cpu().numpy() / time_per_step ,2))
                         log_dict = {
                             "loss": loss_to_log,
                             "class_loss": class_loss_to_log,
@@ -855,9 +860,10 @@ class KDRecipeDistributed(FTRecipeInterface):
                 # Note we are stepping each batch, which might not include optimizer step in the trace
                 # if the schedule cycle doesn't align with gradient accumulation.
                 self._profiler.step()
+                print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
 
             self.epochs_run += 1
-            self.save_checkpoint(epoch=curr_epoch)
+            # self.save_checkpoint(epoch=curr_epoch)
 
         self._profiler.stop()
 
