@@ -964,10 +964,10 @@ class FullDPORecipeDistributed(FTRecipeInterface):
                     # Note that this is called within gradient accumulation block, hence
                     # will include multiple forward / backward passes if gradient accumulation > 1
                     self._profiler.step()
-                    print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
-
+                    
             self.epochs_run += 1
             # self.save_checkpoint(epoch=curr_epoch)
+            print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
 
         self._profiler.stop()
 
