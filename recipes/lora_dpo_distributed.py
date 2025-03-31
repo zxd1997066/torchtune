@@ -788,10 +788,10 @@ class LoRADPORecipeDistributed(FTRecipeInterface):
                     num_tokens = 0
 
                     t0 = time.perf_counter()
-                    print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
 
             self.epochs_run += 1
             # self.save_checkpoint(epoch=curr_epoch)
+            print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
 
     def cleanup(self) -> None:
         if self._is_rank_zero:
