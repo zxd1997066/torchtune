@@ -860,10 +860,10 @@ class KDRecipeDistributed(FTRecipeInterface):
                 # Note we are stepping each batch, which might not include optimizer step in the trace
                 # if the schedule cycle doesn't align with gradient accumulation.
                 self._profiler.step()
-                print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
 
             self.epochs_run += 1
             # self.save_checkpoint(epoch=curr_epoch)
+            print("avg tokens_per_second: ", round(total_tokens / total_time, 2))
 
         self._profiler.stop()
 
