@@ -69,7 +69,7 @@ class TestNF4Linear:
         assert inp.grad is not None and inp.grad.dtype == dtype
         assert nf4_linear.weight.grad is None
 
-    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Need CUDA available")
+    @pytest.mark.skipif(not torch.xpu.is_available(), reason="Need CUDA available")
     @pytest.mark.parametrize("dtype", [torch.bfloat16, torch.float32])
     def test_nf4_reconstruction_vs_bnb(self, dtype):
         """
@@ -102,7 +102,7 @@ class TestNF4Linear:
             bnb_reconstruction.T, nf4_linear.weight.get_original_weight(), 1e-2
         )
 
-    @pytest.mark.skipif(not torch.cuda.is_available(), reason="Need CUDA available")
+    @pytest.mark.skipif(not torch.xpu.is_available(), reason="Need CUDA available")
     @pytest.mark.parametrize("dtype", [torch.bfloat16, torch.float32])
     def test_nf4_bnb_linear(self, dtype):
         """
