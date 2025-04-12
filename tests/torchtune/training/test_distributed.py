@@ -43,9 +43,9 @@ class TestDistributed:
         Integration test to confirm distributed initialization and consistency with process group backend utilities.
         """
         if init_pg_explicit:
-            torch.distributed.init_process_group(backend="gloo")
+            torch.distributed.init_process_group("xpu:xccl,cpu:gloo")
         if not torch.distributed.is_initialized():
-            init_process_group(backend="gloo")
+            init_process_group("xpu:xccl,cpu:gloo")
         if not torch.distributed.is_initialized():
             raise AssertionError("Expected torch.distributed to be initialized")
         pg_backend = torch.distributed.get_backend()
