@@ -101,7 +101,7 @@ def test_offloading_works_with_view_outputs() -> None:
 
         @staticmethod
         def backward(ctx, viewed_activation):
-            torch.cuda._sleep(NUM_GPU_CYCLES_IN_ONE_SEC)
+            torch.xpu._sleep(NUM_GPU_CYCLES_IN_ONE_SEC)
             return viewed_activation == 1
 
     class InspectEarlierActivation(torch.autograd.Function):
@@ -189,7 +189,7 @@ def test_offloading_works_with_view_ac_cached_buffers() -> None:
         @staticmethod
         def backward(ctx, grad):
             saved_tensor = ctx.saved_tensors[0]
-            torch.cuda._sleep(NUM_GPU_CYCLES_IN_ONE_SEC)
+            torch.xpu._sleep(NUM_GPU_CYCLES_IN_ONE_SEC)
             return torch.rand_like(grad)
 
     class E(torch.autograd.Function):
