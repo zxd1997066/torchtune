@@ -589,6 +589,7 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
 
                 running_loss += current_loss.detach()
                 current_loss.backward()
+                if self.global_step >= 5: break
 
                 # Take a normal optimizer step
                 if (idx + 1) % self._gradient_accumulation_steps == 0:
@@ -619,9 +620,8 @@ class FullFinetuneRecipeSingleDevice(FTRecipeInterface):
 
                     if self.global_step % self._log_every_n_steps == 0:
                         time_per_step = time.perf_counter() - t0
-                        if self.global_step > 2:
-                            total_time = total_time + time_per_step
-                            total_tokens += num_tokens.cpu().numpy()
+                        total_time = total_time + time_per_step
+                        total_tokens += num_tokens.cpu().numpy()
                         print("iteration: ", self.global_step, "tokens: ", num_tokens.cpu().numpy(), "time: ", time_per_step, "tokens_per_second_on_single_device: ", round(num_tokens.cpu().numpy() / time_per_step ,2))
                         log_dict = {
                             "loss": loss_value,
