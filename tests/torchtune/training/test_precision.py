@@ -24,6 +24,7 @@ from torchtune.training.precision import (
 
 class TestPrecisionUtils:
     cuda_available: bool = torch.cuda.is_available()
+    xpu_available: bool = torch.xpu.is_available()
 
     def test_get_dtype(self):
         """
@@ -55,7 +56,7 @@ class TestPrecisionUtils:
         ):
             get_dtype(torch.bfloat16)
 
-    @pytest.mark.skipif(not cuda_available, reason="The test requires GPUs to run.")
+    @pytest.mark.skipif(not xpu_available, reason="The test requires GPUs to run.")
     def test_set_float32_precision(self) -> None:
         setattr(  # noqa: B010
             torch.backends, "__allow_nonbracketed_mutation_flag", True
