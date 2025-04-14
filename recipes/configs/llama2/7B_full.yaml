@@ -73,7 +73,7 @@ compile: False  # torch.compile the model + loss, True increases speed + decreas
 optimizer_in_bwd: False  # True saves memory. Requires gradient_accumulation_steps=1
 
 # Training env
-device: cuda
+device: xpu
 
 # Memory management
 enable_activation_checkpointing: True  # True reduces memory
