@@ -16,7 +16,7 @@ NUM_GPU_CYCLES_IN_ONE_SEC = 2000000000  # 2e9 is ~1s worth of GPU cycles
 @gpu_test(gpu_count=1)
 @pytest.mark.parametrize("use_streams", [True, False])
 def test_offloading_is_same_as_without(use_streams) -> None:
-    with torch.device("cuda"):
+    with torch.device("xpu"):
         torch.manual_seed(2024)
         model = nn.Sequential(
             nn.Linear(10, 10),
@@ -32,7 +32,7 @@ def test_offloading_is_same_as_without(use_streams) -> None:
             nn.ReLU(),
         )
 
-    inp = torch.randn((2, 10), device="cuda")
+    inp = torch.randn((2, 10), device="xpu")
     loss = model(inp).sum()
     loss.backward()
 
@@ -63,7 +63,7 @@ def test_offloading_works_with_view_outputs() -> None:
         we need a way to look into the contents of the contaminated tensor. We
         separate these into two nodes (because having them in the same node does
         not properly let the tensor reference die as it is within scope.) The
-        "Compute" Node queues up ~1 second of work on CUDA followed by a kernel
+        "Compute" Node queues up ~1 second of work on xpu followed by a kernel
         evaluating whether dX is full of 1s. The next Node then inspects the
         earlier activation and asserts the result of dX == 1, which is a sync!
 
@@ -76,7 +76,7 @@ def test_offloading_works_with_view_outputs() -> None:
         def forward(ctx, cloned_activation):
             cloned_activation = cloned_activation.t()
             ctx.save_for_backward(cloned_activation)
-            return torch.rand(2, 4, device="cuda")
+            return torch.rand(2, 4, device="xpu")
 
         @staticmethod
         def backward(ctx, dy):
@@ -125,7 +125,7 @@ def test_offloading_works_with_view_outputs() -> None:
         d = BwdReturnsViewOfActivation.apply(c)
         return d.sum()
 
-    tensor_c = torch.ones(256, 1024, device="cuda", requires_grad=True)
+    tensor_c = torch.ones(256, 1024, device="xpu", requires_grad=True)
     ctx = OffloadActivations(use_streams=True)
     with ctx:
         loss_c = fwd(tensor_c)
@@ -218,7 +218,7 @@ def test_offloading_works_with_view_ac_cached_buffers() -> None:
         )
         return e.sum()
 
-    tensor = torch.ones(256, 1024, device="cuda", requires_grad=True)
+    tensor = torch.ones(256, 1024, device="xpu", requires_grad=True)
     ctx = OffloadActivations(use_streams=True)
     with ctx:
         loss = fwd(tensor)
