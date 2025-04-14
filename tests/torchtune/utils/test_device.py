@@ -30,7 +30,7 @@ class TestDevice:
     cuda_available: bool = torch.xpu.is_available()
 
     def _create_world(self, expected_world_size: int) -> None:
-        torch.distributed.init_process_group(backend="xccl")
+        torch.distributed.init_process_group(backend="gloo")
         world_size, _ = get_world_size_and_rank()
         if world_size != expected_world_size:
             raise AssertionError(
