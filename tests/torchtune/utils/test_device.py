@@ -120,12 +120,12 @@ class TestDevice:
     def test_cuda_available(self, mock_cuda):
         # Test if CUDA is available, get_device_support should return DeviceSupport.CUDA
         device_support = get_device_support()
-        # assert device_support == DeviceSupport.xpu
+        assert device_support == DeviceSupport.XPU
         assert device_support.device_type == "xpu"
-        # assert device_support.device_name == "GPU"
+        assert device_support.device_name == "XPU"
         assert device_support.communication_backend == "xccl"
 
-    @pytest.mark.skipif(not xpu_available, reason="The test requires GPUs to run.")
+    @pytest.mark.skipif(not xpu_available, reason="The test requires XPUs to run.")
     @patch("torch.xpu.is_available", return_value=True)
     def test_get_torch_device_for_cuda(self, mock_cuda):
         # Test if get_torch_device returns the correct torch.xpu module
