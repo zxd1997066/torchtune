@@ -88,11 +88,11 @@ class TestDistributed:
             training.validate_no_params_on_meta_device(model)
 
     def test_get_distributed_backend(self) -> None:
-        assert training.get_distributed_backend("cuda") == "nccl"
+        assert training.get_distributed_backend("xpu") == "xccl"
         assert training.get_distributed_backend("cpu") == "gloo"
         assert (
-            training.get_distributed_backend("cuda", offload_ops_to_cpu=True)
-            == "cuda:nccl,cpu:gloo"
+            training.get_distributed_backend("xpu", offload_ops_to_cpu=True)
+            == "xpu:xccl,cpu:gloo"
         )
 
 
@@ -139,7 +139,7 @@ class TestFullyShardState(FSDPTest):
         epochs = 5
         torch.manual_seed(42)
         # base_model is simple DDP
-        with torch.device("cuda"):
+        with torch.device("xpu"):
             base_model = nn.Sequential(
                 MLP(mlp_dim),
                 nn.Sequential(MLP(mlp_dim), nn.Linear(mlp_dim, mlp_dim)),
@@ -162,7 +162,7 @@ class TestFullyShardState(FSDPTest):
 
         # test get full state dict
         for _ in range(epochs):
-            inp = torch.randn((2, mlp_dim), device="cuda")
+            inp = torch.randn((2, mlp_dim), device="xpu")
             base_model(inp).sum().backward()
             for param in base_model.parameters():
                 torch.distributed.all_reduce(
@@ -226,7 +226,7 @@ class TestFullyShardState(FSDPTest):
         training.load_from_full_model_state_dict(
             fsdp_model_to_load,
             copy.deepcopy(base_model.state_dict()),
-            torch.device("cuda"),
+            torch.device("xpu"),
         )
         fsdp_optim_to_load = torch.optim.Adam(
             fsdp_model_to_load.parameters(), weight_decay=0.01, lr=0.01
@@ -236,10 +236,10 @@ class TestFullyShardState(FSDPTest):
             fsdp_optim_to_load,
             # mimic mmap=True where every rank see full SD
             copy.deepcopy(self._broadcast_full_state_dict(optim_full_sd)),
-            torch.device("cuda"),
+            torch.device("xpu"),
         )
         for _ in range(epochs):
-            inp = torch.randn((2, mlp_dim), device="cuda")
+            inp = torch.randn((2, mlp_dim), device="xpu")
             fsdp_model_to_load(inp).sum().backward()
             fsdp_model_to_save(inp).sum().backward()
             fsdp_optim_to_load.step()
@@ -299,7 +299,7 @@ class TestFullyShardState(FSDPTest):
             "quantize_base": True,
         }
         # single-device model as groundtruth
-        with torch.device("cuda"):
+        with torch.device("xpu"):
             base_model = lora_llama2(**kwargs)
         set_trainable_params(base_model, get_adapter_params(base_model))
         if enable_activation_checkpointing:
@@ -324,7 +324,7 @@ class TestFullyShardState(FSDPTest):
             low=0,
             high=kwargs["vocab_size"],
             size=(2, kwargs["max_seq_len"]),
-            device="cuda",
+            device="xpu",
         )
         base_model(inp)
         fsdp_model_to_save(inp)
@@ -361,7 +361,7 @@ class TestFullyShardState(FSDPTest):
                     fully_shard(m)
         fully_shard(fsdp_model_to_load)
         training.load_from_full_model_state_dict(
-            fsdp_model_to_load, expected_model_sd, torch.device("cuda")
+            fsdp_model_to_load, expected_model_sd, torch.device("xpu")
         )
         fsdp_model_to_load(inp)
         sharded_model_sd = fsdp_model_to_load.state_dict()
@@ -397,7 +397,7 @@ class TestTensorParalell(FSDPTest):
     def test_prepare_mha_for_tp(self) -> None:
         """Test tensor parallelism preparation for multi-head attention."""
         # Create a device mesh for tensor parallelism
-        mesh = dist.init_device_mesh("cuda", mesh_shape=(2,))
+        mesh = dist.init_device_mesh("xpu", mesh_shape=(2,))
 
         # Parameters for TransformerSelfAttentionLayer
         embed_dim = 64
