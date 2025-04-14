@@ -299,7 +299,7 @@ class TestDistributedDoRALinear(FSDPTest):
     def _test_dora_distributed_init(self, load_dora_weights):
         rank = self.rank
         is_rank_zero = rank == 0
-        device = f"cuda:{rank}"
+        device = f"xpu:{rank}"
         layers = ["w1", "w2", "w3"]
         base_model_state_dict = {
             "w1.weight": torch.randn(self.embed_dim, self.embed_dim),
@@ -415,7 +415,7 @@ class TestDistributedDoRALinear(FSDPTest):
             actual_magnitude = getattr(ffn, layer).magnitude.full_tensor()
             # to explicit replicate the tensor before comparing with DTensor
             if isinstance(expected_magnitude, DTensor):
-                device_mesh = torch.distributed.init_device_mesh("cuda", (2,))
+                device_mesh = torch.distributed.init_device_mesh("xpu", (2,))
                 actual_magnitude = DTensor.from_local(
                     actual_magnitude,
                     device_mesh=device_mesh,
