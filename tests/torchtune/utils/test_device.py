@@ -123,7 +123,7 @@ class TestDevice:
         assert device_support == DeviceSupport.XPU
         assert device_support.device_type == "xpu"
         assert device_support.device_name == "XPU"
-        assert device_support.communication_backend == "xccl"
+        assert device_support.communication_backend == "ccl"
 
     @pytest.mark.skipif(not xpu_available, reason="The test requires XPUs to run.")
     @patch("torch.xpu.is_available", return_value=True)
