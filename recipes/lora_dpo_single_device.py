@@ -479,7 +479,6 @@ class LoRADPORecipeSingleDevice(FTRecipeInterface):
         """
         The core training loop.
         """
-
         # Initialize tokens count and running loss (for grad accumulation)
         t0 = time.perf_counter()
         running_loss = 0
