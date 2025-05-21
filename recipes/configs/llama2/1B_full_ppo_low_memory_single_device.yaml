@@ -112,11 +112,7 @@ seed: null
 shuffle: True
 
 # Training env
-<<<<<<< HEAD
-device: cuda
-=======
 device: xpu
->>>>>>> 0617dd9a (add recipes)
 
 # Training arguments
 batch_size: 16
@@ -126,20 +122,12 @@ ppo_batch_size: 16
 gradient_accumulation_steps: 1  # Use to increase effective batch size
 
 # Memory management and performance
-<<<<<<< HEAD
-compile: False  # torch.compile the model + loss, True increases speed + decreases memory
-=======
 compile: True  # torch.compile the model + loss, True increases speed + decreases memory
->>>>>>> 0617dd9a (add recipes)
 optimizer:
   _component_: torch.optim.AdamW
   lr: 3e-6
 optimizer_in_bwd: True  # True saves memory. Requires gradient_accumulation_steps=1
 log_peak_memory_stats: True
-<<<<<<< HEAD
-
-=======
->>>>>>> 0617dd9a (add recipes)
 enable_activation_checkpointing: True # True reduces memory
 enable_kv_cache: True
 
@@ -161,10 +149,7 @@ reward_penalty: -3
 
 # tokens to consider as "end of sequence" tokens
 stop_token_ids: [
-<<<<<<< HEAD
   2,
-=======
->>>>>>> 0617dd9a (add recipes)
   29889
 ]
 whiten_rewards: False
@@ -187,11 +172,7 @@ metric_logger:
   log_dir: ${output_dir}/logs
 
 log_every_n_steps: 1
-<<<<<<< HEAD
 log_level: INFO  # DEBUG, WARN, etc.
-
-=======
->>>>>>> 0617dd9a (add recipes)
 
 profiler:
   _component_: torchtune.training.setup_torch_profiler
@@ -202,11 +183,8 @@ profiler:
 
   #`torch.profiler.ProfilerActivity` types to trace
   cpu: True
-<<<<<<< HEAD
   cuda: True
-=======
   xpu: True
->>>>>>> 0617dd9a (add recipes)
 
   #trace options passed to `torch.profiler.profile`
   profile_memory: True
@@ -219,8 +197,4 @@ profiler:
   wait_steps: 5
   warmup_steps: 3
   active_steps: 3
-<<<<<<< HEAD
   num_cycles: 1
-=======
-  num_cycles: 1
->>>>>>> 0617dd9a (add recipes)
