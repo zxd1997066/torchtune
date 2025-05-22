@@ -712,7 +712,7 @@ class LoRAFinetuneRecipeDistributed(FTRecipeInterface):
                 current_loss = self._loss_step(batch) * current_num_tokens
                 running_loss += current_loss
                 current_loss.backward()
-
+                torch.xpu.synchronize()
                 # Step with optimizer
                 if (idx + 1) % self._gradient_accumulation_steps == 0:
                     # Get total number of tokens across all ranks to normalize gradients
