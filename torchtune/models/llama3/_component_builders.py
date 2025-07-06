@@ -237,7 +237,7 @@ def lora_llama3(
             lora_dropout=lora_dropout,
             quantize_base=quantize_base,
             use_dora=use_dora,
-            scaler_block_size=scaler_block_size,
+            
         )
 
         if apply_lora_to_mlp:
@@ -249,7 +249,7 @@ def lora_llama3(
                 quantize_base=quantize_base,
                 lora_dropout=lora_dropout,
                 use_dora=use_dora,
-                scaler_block_size=scaler_block_size,
+                
             )
         else:
             mlp = llama3_mlp(
@@ -365,7 +365,7 @@ def lora_llama3_self_attention(
             alpha=lora_alpha,
             dropout=lora_dropout,
             quantize_base=quantize_base,
-            scaler_block_size=scaler_block_size,
+            
         )
         if "q_proj" in lora_modules
         else (
@@ -375,7 +375,7 @@ def lora_llama3_self_attention(
                 embed_dim,
                 num_heads * head_dim,
                 bias=False,
-                scaler_block_size=scaler_block_size,
+                
             )
         )
     )
@@ -387,7 +387,7 @@ def lora_llama3_self_attention(
             alpha=lora_alpha,
             dropout=lora_dropout,
             quantize_base=quantize_base,
-            scaler_block_size=scaler_block_size,
+            
         )
         if "k_proj" in lora_modules
         else (
@@ -397,7 +397,7 @@ def lora_llama3_self_attention(
                 embed_dim,
                 num_kv_heads * head_dim,
                 bias=False,
-                scaler_block_size=scaler_block_size,
+                
             )
         )
     )
@@ -409,7 +409,7 @@ def lora_llama3_self_attention(
             alpha=lora_alpha,
             dropout=lora_dropout,
             quantize_base=quantize_base,
-            scaler_block_size=scaler_block_size,
+            
         )
         if "v_proj" in lora_modules
         else (
@@ -419,7 +419,7 @@ def lora_llama3_self_attention(
                 embed_dim,
                 num_kv_heads * head_dim,
                 bias=False,
-                scaler_block_size=scaler_block_size,
+                
             )
         )
     )
@@ -431,7 +431,7 @@ def lora_llama3_self_attention(
             alpha=lora_alpha,
             dropout=lora_dropout,
             quantize_base=quantize_base,
-            scaler_block_size=scaler_block_size,
+            
         )
         if "output_proj" in lora_modules
         else (
@@ -441,7 +441,7 @@ def lora_llama3_self_attention(
                 embed_dim,
                 embed_dim,
                 bias=False,
-                scaler_block_size=scaler_block_size,
+                
             )
         )
     )
@@ -483,7 +483,7 @@ def lora_llama3_mlp(
         alpha=lora_alpha,
         dropout=lora_dropout,
         quantize_base=quantize_base,
-        scaler_block_size=scaler_block_size,
+        
     )
     down_proj = adapter_cls(
         in_dim=hidden_dim,
@@ -492,7 +492,7 @@ def lora_llama3_mlp(
         alpha=lora_alpha,
         dropout=lora_dropout,
         quantize_base=quantize_base,
-        scaler_block_size=scaler_block_size,
+        
     )
     up_proj = adapter_cls(
         in_dim=dim,
@@ -501,7 +501,7 @@ def lora_llama3_mlp(
         alpha=lora_alpha,
         dropout=lora_dropout,
         quantize_base=quantize_base,
-        scaler_block_size=scaler_block_size,
+        
     )
     return FeedForward(
         gate_proj=gate_proj,
